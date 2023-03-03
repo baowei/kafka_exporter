@@ -28,3 +28,11 @@ jobs:
         env:
           GOPATH: /home/runner/go
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: docker image
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: |
+          make push
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
