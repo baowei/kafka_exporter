@@ -19,6 +19,7 @@ jobs:
         run: |
           make push
         env:
+          GOPATH: /home/runner/go
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
