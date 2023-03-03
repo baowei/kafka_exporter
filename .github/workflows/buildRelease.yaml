@@ -15,11 +15,12 @@ jobs:
           cache: true
 
       - name: build
+        if: ${{ github.ref == 'refs/heads/master' }}
         run: |
-          make crossbuild
-          tree .build
+          make push
         env:
-          GOPATH: /home/runner/go
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: release
         if: ${{ github.ref == 'refs/heads/master' }}
@@ -29,10 +30,4 @@ jobs:
           GOPATH: /home/runner/go
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: docker image
-        if: ${{ github.ref == 'refs/heads/master' }}
-        run: |
-          make push
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
