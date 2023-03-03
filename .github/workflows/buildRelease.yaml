@@ -18,6 +18,7 @@ jobs:
         if: ${{ github.ref == 'refs/heads/master' }}
         run: |
           make push
+          tree .build
         env:
           GOPATH: /home/runner/go
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
