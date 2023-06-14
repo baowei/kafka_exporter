@@ -1,0 +1,45 @@
+name: ChartRelease
+on: [push]
+
+env:
+  CHART_NAME: kafka-exporter
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: 'package'
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      -
+        name: Setup helm version
+        uses: Azure/setup-helm@v1
+        with:
+          version: ${{ env.HELM_VERSION_TO_INSTALL }}
+      -
+        run: |
+          CHART=${{ env.CHART_NAME }}
+          VERSION="1.$(date +'%Y%m%d').${GITHUB_RUN_NUMBER}"
+          helm package charts/${CHART} --dependency-update --destination target
+          echo "RELEASE_TAG=${CHART}-${VERSION}" >> $GITHUB_ENV
+      -
+        name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          tag: "${{ env.RELEASE_TAG }}"
+          commit: "${{ env.GITHUB_SHA }}"
+          artifacts: "target/*.tgz"
+          body: "Release from PR merge"
+          token: ${{ secrets.GITHUB_TOKEN }}
+      -
+        name: Log into GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login https://ghcr.io -u ${{ github.actor }} --password-stdin
+      -
+        name: Push chart to ghcr
+        run: |
+          CHART=${{ steps.match-chart-update.outputs.group1 }}
+          VERSION=${{ steps.match-chart-update.outputs.group2 }}
+          helm push target/${CHART}-${VERSION}.tgz oci://ghcr.io/${OWNER_LC}/devops-charts
