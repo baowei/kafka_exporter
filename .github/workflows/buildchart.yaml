@@ -15,10 +15,13 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
       -
         run: |
-          CHART=${{ env.CHART_NAME }}
-          VERSION="1.$(date +'%Y%m%d').${GITHUB_RUN_NUMBER}"
-          helm package charts/${CHART} --dependency-update --destination target
+          echo "CHART=${{ env.CHART_NAME }}" >> $GITHUB_ENV
+          echo "VERSION=1.$(date +'%Y%m%d').${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
           echo "RELEASE_TAG=${CHART}-${VERSION}" >> $GITHUB_ENV
+      -
+        name: helm package
+        run: |
+          helm package charts/${env.CHART} --dependency-update --version ${env.VERSION} --destination target
       -
         name: Release
         uses: ncipollo/release-action@v1
@@ -37,4 +40,4 @@ jobs:
         run: |
           CHART=${{ steps.match-chart-update.outputs.group1 }}
           VERSION="1.$(date +'%Y%m%d').${GITHUB_RUN_NUMBER}"
-          helm push target/${CHART}-${VERSION}.tgz oci://ghcr.io/${OWNER_LC}/devops-charts
+          helm push target/${env.RELEASE_TAG}.tgz oci://ghcr.io/${OWNER_LC}/devops-charts
