@@ -241,3 +241,4 @@ License
 -------
 
 Code is licensed under the [Apache License 2.0](https://github.com/danielqsj/kafka_exporter/blob/master/LICENSE).
+test
