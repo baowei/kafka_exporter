@@ -14,11 +14,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       -
-        name: Setup helm version
-        uses: Azure/setup-helm@v1
-        with:
-          version: ${{ env.HELM_VERSION_TO_INSTALL }}
-      -
         run: |
           CHART=${{ env.CHART_NAME }}
           VERSION="1.$(date +'%Y%m%d').${GITHUB_RUN_NUMBER}"
@@ -41,5 +36,5 @@ jobs:
         name: Push chart to ghcr
         run: |
           CHART=${{ steps.match-chart-update.outputs.group1 }}
-          VERSION=${{ steps.match-chart-update.outputs.group2 }}
+          VERSION="1.$(date +'%Y%m%d').${GITHUB_RUN_NUMBER}"
           helm push target/${CHART}-${VERSION}.tgz oci://ghcr.io/${OWNER_LC}/devops-charts
