@@ -11,6 +11,7 @@ TAG 					:= $(shell echo `if [ "$(TRAVIS_BRANCH)" = "master" ] || [ "$(TRAVIS_BR
 RUN_NUMBER              ?= $(GITHUB_RUN_NUMBER)
 HELM_CHART_NAME         ?= kafka-exporter
 HELM_CHART_VERSION      ?= 1.$(shell date +'%Y%m%d').$(RUN_NUMBER)
+REPO_OWNER              ?= $(GITHUB_REPOSITORY_OWNER)
 
 PUSHTAG                 ?= type=registry,push=true
 DOCKER_PLATFORMS        ?= linux/amd64,linux/arm64
@@ -78,7 +79,7 @@ github-release:
 helm-push:
 	@helm package charts/$(HELM_CHART_NAME) --dependency-update --version $(HELM_CHART_VERSION) --destination target
 	@echo "$(GITHUB_TOKEN)" | helm registry login https://ghcr.io -u GITHUB --password-stdin
-	helm push target/$(HELM_CHART_NAME)-$(HELM_CHART_VERSION).tgz oci://ghcr.io/$(OWNER_LC)
+	helm push target/$(HELM_CHART_NAME)-$(HELM_CHART_VERSION).tgz oci://ghcr.io/$(REPO_OWNER)
 	@rm -f target/$(HELM_CHART_NAME)-$(HELM_CHART_VERSION).tgz
 
 .PHONY: all style format build test vet tarball docker promu
