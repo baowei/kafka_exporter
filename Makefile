@@ -79,7 +79,7 @@ github-release:
 helm-push:
 	@helm package charts/$(HELM_CHART_NAME) --dependency-update --version $(HELM_CHART_VERSION) --destination target
 	@echo "$(GITHUB_TOKEN)" | helm registry login https://ghcr.io -u GITHUB --password-stdin
-	helm push target/$(HELM_CHART_NAME)-$(HELM_CHART_VERSION).tgz oci://ghcr.io/$(REPO_OWNER)/chart
+	@helm push target/$(HELM_CHART_NAME)-$(HELM_CHART_VERSION).tgz oci://ghcr.io/$(REPO_OWNER)/chart
 	@rm -f target/$(HELM_CHART_NAME)-$(HELM_CHART_VERSION).tgz
 
 .PHONY: all style format build test vet tarball docker promu
