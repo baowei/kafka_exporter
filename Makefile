@@ -8,6 +8,10 @@ DOCKER_IMAGE_NAME       ?= kafka-exporter
 DOCKER_IMAGE_TAG        ?= $(subst /,-,$(shell git rev-parse --abbrev-ref HEAD))
 TAG 					:= $(shell echo `if [ "$(TRAVIS_BRANCH)" = "master" ] || [ "$(TRAVIS_BRANCH)" = "" ] ; then echo "latest"; else echo $(TRAVIS_BRANCH) ; fi`)
 
+RUN_NUMBER              ?= $(GITHUB_RUN_NUMBER)
+HELM_CHART_NAME         ?= kafka-exporter
+HELM_CHART_VERSION      ?= 1.$(shell date +'%Y%m%d').$(RUN_NUMBER)
+
 PUSHTAG                 ?= type=registry,push=true
 DOCKER_PLATFORMS        ?= linux/amd64,linux/arm64
 
@@ -70,5 +74,11 @@ github-release:
 	@GOOS=$(shell uname -s | tr A-Z a-z) \
 		GOARCH=$(subst x86_64,amd64,$(patsubst i%86,386,$(shell uname -m))) \
 		$(GO) install github.com/github-release/github-release@v0.10.0
+
+helm-push:
+	@helm package charts/$(HELM_CHART_NAME) --dependency-update --version $(HELM_CHART_VERSION) --destination target
+	@echo "$(GITHUB_TOKEN)" | helm registry login https://ghcr.io -u GITHUB --password-stdin
+	@helm push target/$(HELM_CHART_NAME)-$(HELM_CHART_VERSION).tgz oci://ghcr.io/cyberxcorp/charts
+	@rm -f target/$(HELM_CHART_NAME)-$(HELM_CHART_VERSION).tgz
 
 .PHONY: all style format build test vet tarball docker promu

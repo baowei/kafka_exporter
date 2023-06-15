@@ -32,4 +32,9 @@ jobs:
           GOPATH: /home/runner/go
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-
+      - name: update helm chart
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: |
+          make helm-push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
