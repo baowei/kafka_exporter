@@ -43,7 +43,6 @@ kafkaExporter:
 prometheus:
   serviceMonitor:
     enabled: true
-    namespace: monitoring
     interval: "30s"
     additionalLabels:
       app: kafka-exporter
